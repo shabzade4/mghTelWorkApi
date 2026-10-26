@@ -12,14 +12,12 @@
 <script>
 (async()=>{
   try{
-    const b64 = await (await fetch('./app.b64.txt')).text();
+    let b64='';
+    for(let i=0;i<2;i++){ b64 += await (await fetch('./app.b64.'+i+'.txt')).text(); }
     const bin = Uint8Array.from(atob(b64.trim()), c=>c.charCodeAt(0));
     const html = await new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
     document.open(); document.write(html); document.close();
-  }catch(e){
-    document.getElementById('e').textContent='خطا: '+e.message;
-    console.error(e);
-  }
+  }catch(e){ document.getElementById('e').textContent='خطا: '+e.message; console.error(e); }
 })();
 </script>
 </body>
