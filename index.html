@@ -4,21 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>سیستم جامع مدیریت هوشمند</title>
-<link rel="manifest" href="manifest.json">
-<style>body{font-family:Tahoma,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#0f172a;color:#e2e8f0}#m{text-align:center}</style>
+<style>
+body{font-family:Tahoma,sans-serif;background:#0f172a;color:#e2e8f0;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.box{max-width:480px;background:#1e293b;border-radius:16px;padding:28px;border:1px solid #334155}
+h1{font-size:18px;margin:0 0 12px}
+p{font-size:14px;line-height:1.7;color:#94a3b8;margin:0 0 10px}
+code{background:#0f172a;padding:2px 6px;border-radius:6px;color:#7dd3fc;font-size:12px}
+a{color:#38bdf8}
+</style>
 </head>
 <body>
-<div id="m"><p>⏳ بارگذاری برنامه...</p><p id="e" style="color:#f87171;font-size:13px"></p></div>
-<script>
-(async()=>{
-  try{
-    let b64='';
-    for(let i=0;i<2;i++){ b64 += await (await fetch('./app.b64.'+i+'.txt')).text(); }
-    const bin = Uint8Array.from(atob(b64.trim()), c=>c.charCodeAt(0));
-    const html = await new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
-    document.open(); document.write(html); document.close();
-  }catch(e){ document.getElementById('e').textContent='خطا: '+e.message; console.error(e); }
-})();
-</script>
+<div class="box">
+<h1>📦 ریپوی mghTelWorkApi آماده است</h1>
+<p>فایل کامل برنامه (<code>index.html</code>) به‌خاطر حجم بالا باید یک‌بار به‌صورت دستی در ریشه ریپو قرار گیرد.</p>
+<p>۱) فایل <code>index.html</code> را از چت / دانلود دریافت کنید</p>
+<p>۲) در GitHub روی <strong>Add file → Upload files</strong> بزنید و جایگزین کنید</p>
+<p>۳) سپس ریپو را به Vercel وصل کنید</p>
+<p>سایر فایل‌ها (<code>schema.sql</code>، <code>manifest.json</code>، <code>sw.js</code>، <code>vercel.json</code>) همین‌جا هستند.</p>
+<p><a href="https://github.com/shabzade4/mghTelWorkApi">مشاهده ریپو</a></p>
+</div>
 </body>
 </html>
