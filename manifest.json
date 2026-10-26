@@ -1,0 +1,27 @@
+{
+  "name": "سیستم جامع مدیریت هوشمند",
+  "short_name": "مدیریت من",
+  "description": "نسخه ۳.۶.۰ — مدیریت مالی، وام، مخاطبین، کارها، یادداشت، تقویم شمسی، گزارش PDF و PWA",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "lang": "fa",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
