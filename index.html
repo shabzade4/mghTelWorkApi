@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>سیستم جامع مدیریت هوشمند</title>
+<link rel="manifest" href="manifest.json">
+<style>body{font-family:Tahoma,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#0f172a;color:#e2e8f0}#m{text-align:center}</style>
+</head>
+<body>
+<div id="m"><p>⏳ بارگذاری برنامه...</p><p id="e" style="color:#f87171;font-size:13px"></p></div>
+<script>
+(async()=>{
+  try{
+    const b64 = await (await fetch('./app.b64.txt')).text();
+    const bin = Uint8Array.from(atob(b64.trim()), c=>c.charCodeAt(0));
+    const html = await new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+    document.open(); document.write(html); document.close();
+  }catch(e){
+    document.getElementById('e').textContent='خطا: '+e.message;
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>
