@@ -1,28 +1,16 @@
 # سیستم جامع مدیریت هوشمند (mghTelWorkApi)
 
-نسخه **۳.۹** — برنامه چندفایلی (به‌جای یک index.html غول‌پیکر)
+نسخه **۳.۹** — چندفایلی
 
-## ساختار فایل‌ها
+## فایل‌ها
 
-| فایل | نقش |
-|------|-----|
-| `index.html` | ساختار صفحه و منوها |
-| `styles.css` | استایل‌ها |
-| `tailwind-config.js` | تنظیم Tailwind |
-| `app-core.js` | هسته: تنظیمات، ورود، داده |
-| `app-ui.js` | رابط: مخاطب، کار، یادداشت، ... |
-| `manifest.json` / `sw.js` | PWA |
-| `schema.sql` | دیتابیس Supabase |
-| `vercel.json` | استقرار Vercel |
+- `index.html` — ساختار UI
+- `styles.css` — استایل
+- `tailwind-config.js` — تنظیم Tailwind
+- `app-core.js` / `app-ui.js` — منطق برنامه
+- `manifest.json` / `sw.js` — PWA
+- `schema.sql` — Supabase
 
-## استقرار
+ورود پیش‌فرض: `admin` / `admin`
 
-همه فایل‌ها باید **هم‌پوشه** باشند (نسبی به هم لینک شده‌اند).
-
-1. Import ریپو در Vercel یا آپلود کل پوشه
-2. اجرای `schema.sql` در Supabase
-3. ورود پیش‌فرض: `admin` / `admin`
-
-## چرا چند فایل؟
-
-پوش و نگهداری یک فایل ۳۵۰KB سخت بود. با جداسازی، هر بخش جداگانه قابل به‌روزرسانی و دیباگ است.
+همه فایل‌ها باید در یک پوشه باشند.
