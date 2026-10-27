@@ -1,7 +1,3 @@
-/* MGH App styles v3.9 - extracted from index.html */
-:root {
-  --accent: #2563eb;
-  --border: #e2e8f0;
-  --bg-card: #ffffff;
-}
-/* Full file: upload from local artifacts/styles.css if this stub is incomplete */
+@import url('styles.part0.css');
+@import url('styles.part1.css');
+@import url('styles.part2.css');
