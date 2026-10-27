@@ -4,14 +4,9 @@ tailwind.config = {
                 extend: {
                     fontFamily: {
                         vazir: ['Vazirmatn', 'Tahoma', 'sans-serif'],
-                        samim: ['Samim', 'Vazirmatn', 'Tahoma', 'sans-serif'],
-                        shabnam: ['Shabnam', 'Vazirmatn', 'Tahoma', 'sans-serif'],
-                        tanha: ['Tanha', 'Vazirmatn', 'Tahoma', 'sans-serif'],
-                        sahel: ['Sahel', 'Vazirmatn', 'Tahoma', 'sans-serif'],
-                        parastoo: ['Parastoo', 'Vazirmatn', 'Tahoma', 'sans-serif'],
-                        gandom: ['Gandom', 'Vazirmatn', 'Tahoma', 'sans-serif'],
-                        noto: ['Noto Sans Arabic', 'Vazirmatn', 'Tahoma', 'sans-serif']
+                        iransans: ['IranSans', 'Tahoma', 'sans-serif'],
+                        sahel: ['Sahel', 'Tahoma', 'sans-serif'],
+                        samim: ['Samim', 'Tahoma', 'sans-serif'],
+                        shabnam: ['Shabnam', 'Tahoma', 'sans-serif'],
+                        gandom: ['Gandom', 'Tahoma', 'sans-serif'],
                     }
-                }
-            }
-        };

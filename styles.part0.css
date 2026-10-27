@@ -1,0 +1,91 @@
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@v1.0.2/dist/font-face.css');
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@v5.0.2/dist/font-face.css');
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/gandom-font@v0.6.0/dist/font-face.css');
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@v3.4.0/dist/font-face.css');
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/parastoo-font@v2.0.1/dist/font-face.css');
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/tanha-font@v0.9.0/dist/font-face.css');
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/nahid-font@v0.3.0/dist/font-face.css');
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css');
+        
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-sidebar: #0f172a;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --custom-accent: #2563eb;
+        }
+        body.theme-custom {
+            --accent: var(--custom-accent);
+            --accent-hover: color-mix(in srgb, var(--custom-accent) 85%, #000);
+        }
+        @media print {
+            .sidebar, header, #mobile-nav, .no-print, #global-search-results { display: none !important; }
+            #main-wrapper { margin: 0 !important; }
+            body { background: white !important; color: black !important; }
+        }
+        
+        .theme-slate { --bg-main: #f1f5f9; --bg-card: #ffffff; --bg-sidebar: #0f172a; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --accent: #475569; --accent-hover: #334155; }
+        .theme-indigo { --bg-main: #eef2ff; --bg-card: #ffffff; --bg-sidebar: #1e1b4b; --text-main: #1e1b4b; --text-muted: #6366f1; --border: #c7d2fe; --accent: #4f46e5; --accent-hover: #4338ca; }
+        .theme-emerald { --bg-main: #ecfdf5; --bg-card: #ffffff; --bg-sidebar: #064e3b; --text-main: #064e3b; --text-muted: #059669; --border: #a7f3d0; --accent: #059669; --accent-hover: #047857; }
+        .theme-rose { --bg-main: #fff1f2; --bg-card: #ffffff; --bg-sidebar: #4c0519; --text-main: #4c0519; --text-muted: #e11d48; --border: #fecdd3; --accent: #e11d48; --accent-hover: #be123c; }
+        .theme-amber { --bg-main: #fffbeb; --bg-card: #ffffff; --bg-sidebar: #451a03; --text-main: #451a03; --text-muted: #d97706; --border: #fde68a; --accent: #d97706; --accent-hover: #b45309; }
+        .theme-cyan { --bg-main: #ecfeff; --bg-card: #ffffff; --bg-sidebar: #083344; --text-main: #083344; --text-muted: #0891b2; --border: #a5f3fc; --accent: #0891b2; --accent-hover: #0e7490; }
+        .theme-violet { --bg-main: #f5f3ff; --bg-card: #ffffff; --bg-sidebar: #2e1065; --text-main: #2e1065; --text-muted: #7c3aed; --border: #ddd6fe; --accent: #7c3aed; --accent-hover: #6d28d9; }
+        .theme-teal { --bg-main: #f0fdfa; --bg-card: #ffffff; --bg-sidebar: #134e4a; --text-main: #134e4a; --text-muted: #0d9488; --border: #99f6e4; --accent: #0d9488; --accent-hover: #0f766e; }
+        
+        /* Dark themes */
+        .theme-dark { --bg-main: #0f172a; --bg-card: #1e293b; --bg-sidebar: #020617; --text-main: #f1f5f9; --text-muted: #94a3b8; --border: #334155; --accent: #3b82f6; --accent-hover: #2563eb; }
+        .theme-midnight { --bg-main: #020617; --bg-card: #0f172a; --bg-sidebar: #000000; --text-main: #e2e8f0; --text-muted: #64748b; --border: #1e293b; --accent: #6366f1; --accent-hover: #4f46e5; }
+        .theme-charcoal { --bg-main: #18181b; --bg-card: #27272a; --bg-sidebar: #09090b; --text-main: #fafafa; --text-muted: #a1a1aa; --border: #3f3f46; --accent: #a855f7; --accent-hover: #9333ea; }
+        .theme-navy { --bg-main: #0b192c; --bg-card: #1a2a4a; --bg-sidebar: #020617; --text-main: #e2e8f0; --text-muted: #94a3b8; --border: #1e3a5f; --accent: #38bdf8; --accent-hover: #0ea5e9; }
+        .theme-forest { --bg-main: #052e16; --bg-card: #14532d; --bg-sidebar: #022c22; --text-main: #ecfdf5; --text-muted: #86efac; --border: #166534; --accent: #22c55e; --accent-hover: #16a34a; }
+        .theme-burgundy { --bg-main: #3f0d12; --bg-card: #4c0519; --bg-sidebar: #1a0508; --text-main: #fff1f2; --text-muted: #fda4af; --border: #881337; --accent: #f43f5e; --accent-hover: #e11d48; }
+        /* Light expanded */
+        .theme-sky { --bg-main: #f0f9ff; --bg-card: #ffffff; --bg-sidebar: #0c4a6e; --text-main: #0c4a6e; --text-muted: #0284c7; --border: #bae6fd; --accent: #0284c7; --accent-hover: #0369a1; }
+        .theme-lime { --bg-main: #f7fee7; --bg-card: #ffffff; --bg-sidebar: #365314; --text-main: #365314; --text-muted: #65a30d; --border: #d9f99d; --accent: #65a30d; --accent-hover: #4d7c0f; }
+        .theme-orange { --bg-main: #fff7ed; --bg-card: #ffffff; --bg-sidebar: #7c2d12; --text-main: #7c2d12; --text-muted: #ea580c; --border: #fed7aa; --accent: #ea580c; --accent-hover: #c2410c; }
+        .theme-pink { --bg-main: #fdf2f8; --bg-card: #ffffff; --bg-sidebar: #831843; --text-main: #831843; --text-muted: #db2777; --border: #fbcfe8; --accent: #db2777; --accent-hover: #be185d; }
+        .theme-stone { --bg-main: #fafaf9; --bg-card: #ffffff; --bg-sidebar: #1c1917; --text-main: #1c1917; --text-muted: #78716c; --border: #e7e5e4; --accent: #78716c; --accent-hover: #57534e; }
+        .theme-blue { --bg-main: #eff6ff; --bg-card: #ffffff; --bg-sidebar: #1e3a8a; --text-main: #1e3a8a; --text-muted: #2563eb; --border: #bfdbfe; --accent: #2563eb; --accent-hover: #1d4ed8; }
+        .theme-grape { --bg-main: #faf5ff; --bg-card: #ffffff; --bg-sidebar: #3b0764; --text-main: #3b0764; --text-muted: #9333ea; --border: #e9d5ff; --accent: #9333ea; --accent-hover: #7e22ce; }
+        .theme-mint { --bg-main: #f0fdf4; --bg-card: #ffffff; --bg-sidebar: #14532d; --text-main: #14532d; --text-muted: #16a34a; --border: #bbf7d0; --accent: #16a34a; --accent-hover: #15803d; }
+        .theme-sand { --bg-main: #fefce8; --bg-card: #ffffff; --bg-sidebar: #713f12; --text-main: #713f12; --text-muted: #ca8a04; --border: #fef08a; --accent: #ca8a04; --accent-hover: #a16207; }
+        .theme-coral { --bg-main: #fff1f2; --bg-card: #ffffff; --bg-sidebar: #881337; --text-main: #881337; --text-muted: #f43f5e; --border: #fecdd3; --accent: #fb7185; --accent-hover: #f43f5e; }
+        /* Dark expanded */
+        .theme-obsidian { --bg-main: #0a0a0a; --bg-card: #171717; --bg-sidebar: #000000; --text-main: #fafafa; --text-muted: #a3a3a3; --border: #262626; --accent: #f97316; --accent-hover: #ea580c; }
+        .theme-aurora { --bg-main: #0f172a; --bg-card: #1e293b; --bg-sidebar: #020617; --text-main: #e0f2fe; --text-muted: #67e8f9; --border: #164e63; --accent: #22d3ee; --accent-hover: #06b6d4; }
+        .theme-plum { --bg-main: #1a0b2e; --bg-card: #2d1b4e; --bg-sidebar: #0f0618; --text-main: #f3e8ff; --text-muted: #c084fc; --border: #4c1d95; --accent: #a855f7; --accent-hover: #9333ea; }
+        .theme-ocean { --bg-main: #0c1929; --bg-card: #132f4c; --bg-sidebar: #071018; --text-main: #e0f2fe; --text-muted: #7dd3fc; --border: #0c4a6e; --accent: #0ea5e9; --accent-hover: #0284c7; }
+        .theme-ember { --bg-main: #1c0a0a; --bg-card: #2a1212; --bg-sidebar: #0f0505; --text-main: #fef2f2; --text-muted: #fca5a5; --border: #7f1d1d; --accent: #ef4444; --accent-hover: #dc2626; }
+        .theme-moss { --bg-main: #0c1f14; --bg-card: #14301f; --bg-sidebar: #06100a; --text-main: #ecfdf5; --text-muted: #6ee7b7; --border: #14532d; --accent: #34d399; --accent-hover: #10b981; }
+        
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+        }
+        
+        .sidebar {
+            background-color: var(--bg-sidebar);
+            background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 28%);
+        }
+        
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+            box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 35%, transparent);
+        }
