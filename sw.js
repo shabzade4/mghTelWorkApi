@@ -1,5 +1,5 @@
-const CACHE = 'mgh-v3.6.0';
-const ASSETS = ['./', './index.html', './manifest.json'];
+const CACHE = 'mgh-v3.9.0';
+const ASSETS = ['./', './index.html', './manifest.json', './styles.css', './tailwind-config.js', './app-core.js', './app-ui.js'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
