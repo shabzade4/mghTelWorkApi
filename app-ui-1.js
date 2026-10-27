@@ -60,7 +60,7 @@
                             <button onclick="deleteItem('notes', '${item.id}', fetchNotes)" class="px-2 py-1.5 rounded-lg text-slate-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                         </div>
                     </div>`;
-            });
+            }
             lucide.createIcons();
         }
 

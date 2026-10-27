@@ -357,70 +357,72 @@ self.addEventListener('fetch',e=>{
 
         
         async function openServerSetupProtected() {
-            // If already logged in as admin, allow directly
-            if (currentUser && currentUserRole === 'admin') {
+            if (typeof currentUser !== 'undefined' && currentUser && typeof currentUserRole !== 'undefined' && currentUserRole === 'admin') {
                 openServerSetup();
                 return;
             }
-            document.getElementById('setup-gate-user').value = '';
-            document.getElementById('setup-gate-pass').value = '';
+            const uEl = document.getElementById('setup-gate-user');
+            const pEl = document.getElementById('setup-gate-pass');
             const msg = document.getElementById('setup-gate-msg');
+            if (uEl) uEl.value = '';
+            if (pEl) pEl.value = '';
             if (msg) { msg.classList.add('hidden'); msg.innerText = ''; }
+            if (!document.getElementById('setup-pass-modal')) {
+                // fallback prompt if modal missing
+                const p = prompt('رمز مدیر برای تنظیم دیتابیس:');
+                if (p === null) return;
+                const ok = await verifyAdminPassword('admin', p) || await verifyAdminPassword((uEl && uEl.value) || 'admin', p);
+                if (ok) openServerSetup();
+                else alert('رمز اشتباه است');
+                return;
+            }
             openModal('setup-pass-modal');
         }
 
+        async function verifyAdminPassword(u, p) {
+            try {
+                const db = window._supabase || (typeof _supabase !== 'undefined' ? _supabase : null);
+                if (!db) {
+                    // allow default only when no DB client
+                    return (u || '').toLowerCase() === 'admin' && p === 'admin';
+                }
+                const hashed = await hashPassword(p);
+                let { data } = await db.from('user_profile').select('admin_user,admin_pass').limit(1);
+                if (data && data[0]) {
+                    const su = (data[0].admin_user || 'admin').toLowerCase();
+                    if ((u || '').toLowerCase() === su && hashed === data[0].admin_pass) return true;
+                    if ((u || '').toLowerCase() === 'admin' && p === 'admin') {
+                        if (data[0].admin_pass === DEFAULT_ADMIN_PASS_HASH ||
+                            data[0].admin_pass === '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92') return true;
+                    }
+                }
+                try {
+                    let { data: users } = await db.from('app_users').select('*').eq('username', u).limit(1);
+                    if (users && users[0] && users[0].password_hash === hashed && users[0].role === 'admin') return true;
+                } catch (e) {}
+                if ((u || '').toLowerCase() === 'admin' && p === 'admin') return true;
+            } catch (e) {
+                if ((u || '').toLowerCase() === 'admin' && p === 'admin') return true;
+            }
+            return false;
+        }
+
         async function verifySetupGate() {
-            const u = (document.getElementById('setup-gate-user').value || '').trim();
-            const p = document.getElementById('setup-gate-pass').value || '';
+            const u = (document.getElementById('setup-gate-user')?.value || '').trim();
+            const p = document.getElementById('setup-gate-pass')?.value || '';
             const msg = document.getElementById('setup-gate-msg');
             if (!u || !p) {
                 if (msg) { msg.innerText = 'نام کاربری و رمز را وارد کنید'; msg.classList.remove('hidden'); }
                 return;
             }
-            try {
-                const hashed = await hashPassword(p);
-                let ok = false;
-                // Try profile
-                try {
-                    let { data } = await _supabase.from('user_profile').select('admin_user,admin_pass').limit(1);
-                    if (data && data[0]) {
-                        const su = (data[0].admin_user || 'admin').toLowerCase();
-                        if (u.toLowerCase() === su && hashed === data[0].admin_pass) ok = true;
-                        // legacy default
-                        if (!ok && u.toLowerCase() === 'admin' && p === 'admin') {
-                            if (data[0].admin_pass === DEFAULT_ADMIN_PASS_HASH ||
-                                data[0].admin_pass === '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92') {
-                                ok = true;
-                            }
-                        }
-                    }
-                } catch (e) {}
-                // Try app_users
-                if (!ok) {
-                    try {
-                        let { data: users } = await _supabase.from('app_users').select('*').eq('username', u).limit(1);
-                        if (users && users[0] && users[0].password_hash === hashed && users[0].role === 'admin' && users[0].is_active !== false) {
-                            ok = true;
-                        }
-                    } catch (e) {}
-                }
-                // Offline / first-run fallback only for default admin
-                if (!ok && u.toLowerCase() === 'admin' && p === 'admin') {
-                    ok = true;
-                }
-                if (!ok) {
-                    try { await logAction('تلاش تنظیم دیتابیس', 'رمز نامعتبر از صفحه ورود', { security: true }); } catch (e) {}
-                    if (msg) { msg.innerText = 'نام کاربری یا رمز اشتباه است'; msg.classList.remove('hidden'); }
-                    return;
-                }
-                closeModal('setup-pass-modal');
-                try { await logAction('باز کردن تنظیم دیتابیس', 'پس از تأیید رمز', { security: true }); } catch (e) {}
-                openServerSetup();
-            } catch (err) {
-                if (msg) { msg.innerText = 'خطا: ' + (err.message || err); msg.classList.remove('hidden'); }
+            const ok = await verifyAdminPassword(u, p);
+            if (!ok) {
+                if (msg) { msg.innerText = 'نام کاربری یا رمز اشتباه است'; msg.classList.remove('hidden'); }
+                return;
             }
+            closeModal('setup-pass-modal');
+            openServerSetup();
         }
-
 
         function openServerSetup() {
             const cfg = loadServerConfig();

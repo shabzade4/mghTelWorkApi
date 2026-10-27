@@ -1,15 +1,3 @@
-,
-                    colors: {
-                        primary: {
-                            50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
-                            400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
-                            800: '#1e40af', 900: '#1e3a8a', 950: '#172554'
-                        }
-                    }
-                }
-            }
-        }
-
 // ==================== CONFIG & STATE ====================
         const APP_VERSION = '3.9.1';
         const APP_NAME = 'سیستم جامع مدیریت هوشمند';
@@ -34,14 +22,21 @@
             localStorage.setItem(CFG_KEY, JSON.stringify({ url: url.trim(), key: key.trim(), saved_at: new Date().toISOString() }));
         }
 
-        let serverCfg = loadServerConfig();
-        let _supabase = supabase.createClient(serverCfg.url, serverCfg.key);
+        var serverCfg = loadServerConfig();
+        var _supabase = supabase.createClient(serverCfg.url, serverCfg.key);
+        window._supabase = _supabase;
+        window.serverCfg = serverCfg;
 
         function reconnectSupabase(url, key) {
             serverCfg = { url, key };
             saveServerConfig(url, key);
             _supabase = supabase.createClient(url, key);
+            window._supabase = _supabase;
+            window.serverCfg = serverCfg;
         }
+        window.reconnectSupabase = reconnectSupabase;
+        window.loadServerConfig = loadServerConfig;
+        window.hashPassword = typeof hashPassword !== 'undefined' ? hashPassword : undefined;
 
         let currentUser = null;
         let currentUserRole = 'admin';
@@ -61,6 +56,7 @@
 
         // ==================== CRYPTO ====================
         async function hashPassword(password) {
+            // exposed below
             const msgBuffer = new TextEncoder().encode(password);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
@@ -634,3 +630,8 @@
         }
 
         // Weekday of Jalali date: 0=Saturday ... 6=Friday (Iran week)
+
+        window.hashPassword = hashPassword;
+        window.DEFAULT_ADMIN_PASS_HASH = DEFAULT_ADMIN_PASS_HASH;
+        window.DEFAULT_ADMIN_USER = DEFAULT_ADMIN_USER;
+        window.APP_VERSION = APP_VERSION;
