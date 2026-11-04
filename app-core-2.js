@@ -119,7 +119,7 @@
             }
 
             list.innerHTML = '';
-            let shown = 0;
+            const prepared = [];
             for (let item of data) {
                 const tType = await toText(item.type);
                 if (filter && tType !== filter) continue;
@@ -135,22 +135,60 @@
 
                 if (tType === 'درآمد') totalInc += tAmt;
                 else totalExp += tAmt;
-                shown++;
 
-                list.innerHTML += `
-                    <div class="list-card flex items-center justify-between p-3.5 gap-2" style="border-color:var(--border)">
-                        <div class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" onclick="viewTransaction('${item.id}')">
-                            <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${tType === 'درآمد' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40' : 'bg-red-100 text-red-600 dark:bg-red-900/40'}">
-                                <i data-lucide="${tType === 'درآمد' ? 'arrow-down-left' : 'arrow-up-right'}" class="w-5 h-5"></i>
+                prepared.push({
+                    id: item.id,
+                    type: tType,
+                    category: tCat,
+                    amount: Number(tAmt) || 0,
+                    account: tAcc,
+                    date: tDateN || tDate || '',
+                    time: tTime,
+                    description: tDesc,
+                    created_at: item.created_at || ''
+                });
+            }
+            const lv = (typeof getListView === 'function') ? getListView('transactions') : { mode: 'list', sortKey: 'date', sortDir: 'desc' };
+            const sorted = (typeof sortRows === 'function') ? sortRows(prepared, lv.sortKey || 'date', lv.sortDir || 'desc') : prepared;
+            if (typeof updateListModeButtons === 'function') updateListModeButtons('transactions');
+            const shown = sorted.length;
+
+            if (lv.mode === 'table' && typeof renderTableShell === 'function') {
+                list.innerHTML = renderTableShell('transactions', [
+                    { key: 'date', label: 'تاریخ' },
+                    { key: 'type', label: 'نوع' },
+                    { key: 'category', label: 'دسته' },
+                    { key: 'amount', label: 'مبلغ' },
+                    { key: 'account', label: 'حساب' }
+                ], sorted, item => `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="px-3 py-2 text-xs ltr-num">${item.date || '—'}${item.time ? ' ' + item.time : ''}</td>
+                        <td class="px-3 py-2 text-xs">${item.type || '—'}</td>
+                        <td class="px-3 py-2 text-sm">${item.category || '—'}</td>
+                        <td class="px-3 py-2 text-xs ltr-num font-bold ${item.type === 'درآمد' ? 'text-emerald-600' : 'text-red-600'}">${formatNum(item.amount)}</td>
+                        <td class="px-3 py-2 text-xs">${item.account || '—'}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-xs">
+                            <button onclick="viewTransaction('${item.id}')" class="text-blue-600 ml-1">نمایش</button>
+                            <button onclick="editTransaction('${item.id}')" class="text-slate-500 ml-1">ویرایش</button>
+                            <button onclick="deleteItem('transactions','${item.id}',fetchTransactions)" class="text-red-500">حذف</button>
+                        </td>
+                    </tr>`);
+            } else {
+                const tiles = lv.mode === 'tiles';
+                sorted.forEach(item => {
+                    list.innerHTML += `
+                    <div class="list-card flex items-center justify-between p-3.5 gap-2 ${tiles ? 'flex-col text-center' : ''}" style="border-color:var(--border)">
+                        <div class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer ${tiles ? 'flex-col' : ''}" onclick="viewTransaction('${item.id}')">
+                            <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${item.type === 'درآمد' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40' : 'bg-red-100 text-red-600 dark:bg-red-900/40'}">
+                                <i data-lucide="${item.type === 'درآمد' ? 'arrow-down-left' : 'arrow-up-right'}" class="w-5 h-5"></i>
                             </div>
                             <div class="min-w-0">
-                                <p class="font-semibold text-sm">${tCat || '—'}</p>
-                                <p class="text-xs text-slate-500 mt-0.5">${tDate || 'بدون تاریخ'}${tTime ? ' · ' + tTime : ''}${tAcc ? ' · ' + tAcc : ''}</p>
-                                ${tDesc ? `<p class="text-xs text-slate-400 mt-0.5 truncate">${tDesc}</p>` : ''}
+                                <p class="font-semibold text-sm">${item.category || '—'}</p>
+                                <p class="text-xs text-slate-500 mt-0.5">${item.date || 'بدون تاریخ'}${item.time ? ' · ' + item.time : ''}${item.account ? ' · ' + item.account : ''}</p>
+                                ${item.description ? `<p class="text-xs text-slate-400 mt-0.5 truncate">${item.description}</p>` : ''}
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0">
-                            <span class="font-bold text-sm ltr-num whitespace-nowrap ${tType === 'درآمد' ? 'text-emerald-600' : 'text-red-600'}">${formatNum(tAmt)}</span>
+                            <span class="font-bold text-sm ltr-num whitespace-nowrap ${item.type === 'درآمد' ? 'text-emerald-600' : 'text-red-600'}">${formatNum(item.amount)}</span>
                             <button onclick="event.stopPropagation(); viewTransaction('${item.id}')" class="p-1.5 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600" title="نمایش">
                                 <i data-lucide="eye" class="w-4 h-4"></i>
                             </button>
@@ -162,6 +200,7 @@
                             </button>
                         </div>
                     </div>`;
+                });
             }
             if (shown === 0) {
                 list.innerHTML = `<p class="text-center text-slate-400 text-sm py-6">تراکنشی یافت نشد.</p>`;

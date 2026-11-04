@@ -1,5 +1,5 @@
 // ==================== CONFIG & STATE ====================
-        const APP_VERSION = '4.0.2';
+        const APP_VERSION = '4.0.3';
         const APP_NAME = 'سیستم جامع مدیریت هوشمند';
         const DEFAULT_ADMIN_USER = 'admin';
         const DEFAULT_ADMIN_PASS_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'; // SHA256("admin")

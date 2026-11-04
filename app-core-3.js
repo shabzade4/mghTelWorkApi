@@ -144,6 +144,7 @@
             }
 
             list.innerHTML = '';
+            const prepared = [];
             for (let item of data) {
                 const title = await toText(item.title);
                 const lType = await toText(item.loan_type);
@@ -155,16 +156,49 @@
                 const remAmt = await toNum(item.remaining_amount);
                 const dDay = await toText(item.due_day);
                 totalRemaining += remAmt;
-
                 const progress = item.total_installments > 0 ? Math.round((item.paid_installments / item.total_installments) * 100) : 0;
-
                 const rate = item.interest_rate != null ? Number(item.interest_rate) : null;
+                prepared.push({
+                    id: item.id, title, loan_type: lType, bank, total_amount: Number(totAmt) || 0,
+                    bank_fee: Number(bFee) || 0, net_received: Number(netRec) || 0,
+                    monthly_payment: Number(mPay) || 0, remaining_amount: Number(remAmt) || 0,
+                    due_day: dDay, progress, rate,
+                    paid_installments: item.paid_installments || 0,
+                    total_installments: item.total_installments || 0,
+                    created_at: item.created_at || ''
+                });
+            }
+            const lv = (typeof getListView === 'function') ? getListView('loans') : { mode: 'list', sortKey: 'created_at', sortDir: 'desc' };
+            const sorted = (typeof sortRows === 'function') ? sortRows(prepared, lv.sortKey || 'title', lv.sortDir || 'asc') : prepared;
+            if (typeof updateListModeButtons === 'function') updateListModeButtons('loans');
+
+            if (lv.mode === 'table' && typeof renderTableShell === 'function') {
+                list.innerHTML = renderTableShell('loans', [
+                    { key: 'title', label: 'عنوان' },
+                    { key: 'bank', label: 'بانک' },
+                    { key: 'total_amount', label: 'اصل' },
+                    { key: 'monthly_payment', label: 'قسط' },
+                    { key: 'remaining_amount', label: 'مانده' }
+                ], sorted, item => `<tr>
+                        <td class="px-3 py-2 text-sm font-medium">${item.title || '—'}</td>
+                        <td class="px-3 py-2 text-xs">${item.bank || item.loan_type || '—'}</td>
+                        <td class="px-3 py-2 text-xs ltr-num">${formatMoney(item.total_amount)}</td>
+                        <td class="px-3 py-2 text-xs ltr-num">${formatMoney(item.monthly_payment)}</td>
+                        <td class="px-3 py-2 text-xs ltr-num text-amber-600">${formatMoney(item.remaining_amount)}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-xs">
+                            <button onclick="editLoan('${item.id}')" class="text-slate-500 ml-1">ویرایش</button>
+                            <button onclick="deleteItem('loans','${item.id}',fetchLoans)" class="text-red-500">حذف</button>
+                        </td>
+                    </tr>`);
+            } else {
+                const tiles = lv.mode === 'tiles';
+                sorted.forEach(item => {
                 list.innerHTML += `
-                    <div class="p-4 rounded-xl border" style="border-color:var(--border)">
-                        <div class="flex justify-between items-start gap-2">
+                    <div class="list-card p-4 ${tiles ? 'text-center' : ''}">
+                        <div class="flex justify-between items-start gap-2 ${tiles ? 'flex-col items-center' : ''}">
                             <div>
-                                <p class="font-bold text-sm">${title}</p>
-                                <p class="text-xs text-slate-500 mt-0.5">${lType || 'وام'} ${bank ? '· ' + bank : ''}${rate != null ? ' · نرخ ' + rate + '٪' : ''}</p>
+                                <p class="font-bold text-sm">${item.title}</p>
+                                <p class="text-xs text-slate-500 mt-0.5">${item.loan_type || 'وام'} ${item.bank ? '· ' + item.bank : ''}${item.rate != null ? ' · نرخ ' + item.rate + '٪' : ''}</p>
                             </div>
                             <div class="flex gap-1">
                                 <button onclick="editLoan('${item.id}')" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-blue-600"><i data-lucide="pencil" class="w-4 h-4"></i></button>
@@ -172,25 +206,26 @@
                             </div>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 text-xs">
-                            <div><span class="text-slate-500">اصل:</span> <span class="font-medium ltr-num">${formatMoney(totAmt)}</span></div>
-                            <div><span class="text-slate-500">قسط:</span> <span class="font-medium ltr-num">${formatMoney(mPay)}</span></div>
-                            <div><span class="text-slate-500">خالص دریافتی:</span> <span class="font-medium ltr-num">${formatMoney(netRec)}</span></div>
-                            <div><span class="text-slate-500">مانده:</span> <span class="font-bold text-amber-600 ltr-num">${formatMoney(remAmt)}</span></div>
+                            <div><span class="text-slate-500">اصل:</span> <span class="font-medium ltr-num">${formatMoney(item.total_amount)}</span></div>
+                            <div><span class="text-slate-500">قسط:</span> <span class="font-medium ltr-num">${formatMoney(item.monthly_payment)}</span></div>
+                            <div><span class="text-slate-500">خالص دریافتی:</span> <span class="font-medium ltr-num">${formatMoney(item.net_received)}</span></div>
+                            <div><span class="text-slate-500">مانده:</span> <span class="font-bold text-amber-600 ltr-num">${formatMoney(item.remaining_amount)}</span></div>
                         </div>
                         <div class="mt-3">
                             <div class="flex justify-between text-xs mb-1">
                                 <span>${item.paid_installments || 0} از ${item.total_installments || 0} قسط پرداخت شده</span>
-                                <span>${progress}٪</span>
+                                <span>${item.progress}٪</span>
                             </div>
                             <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                                <div class="h-full bg-emerald-500 rounded-full transition-all" style="width:${progress}%"></div>
+                                <div class="h-full bg-emerald-500 rounded-full transition-all" style="width:${item.progress}%"></div>
                             </div>
                         </div>
-                        <div class="flex flex-wrap gap-2 mt-3">
+                        <div class="flex flex-wrap gap-2 mt-3 ${tiles ? 'justify-center' : ''}">
                             ${(item.paid_installments || 0) < (item.total_installments || 0) ? `<button type="button" onclick="payLoanInstallment('${item.id}')" class="btn-success text-xs px-3 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="banknote" class="w-3.5 h-3.5"></i> ثبت پرداخت قسط</button>` : '<span class="text-xs text-emerald-600 font-medium">✓ تسویه شده</span>'}
-                            ${dDay ? `<span class="text-xs text-slate-500 self-center">سررسید: ${dDay}</span>` : ''}
+                            ${item.due_day ? `<span class="text-xs text-slate-500 self-center">سررسید: ${item.due_day}</span>` : ''}
                         </div>
                     </div>`;
+                });
             }
             document.getElementById('total-loans-remaining').innerText = formatMoney(totalRemaining);
             lucide.createIcons();
