@@ -26,6 +26,30 @@
                 return;
             }
 
+            if (typeof updateListModeButtons === 'function') updateListModeButtons('notes');
+            const lvN = (typeof getListView === 'function') ? getListView('notes') : { mode: 'grid', sortKey: 'created_at', sortDir: 'desc' };
+            filtered = (typeof sortRows === 'function') ? sortRows(filtered, lvN.sortKey, lvN.sortDir) : filtered;
+            if (lvN.mode === 'table') {
+                list.innerHTML = renderTableShell('notes', [
+                    { key: 'title', label: 'عنوان' },
+                    { key: 'category', label: 'دسته' },
+                    { key: 'type', label: 'نوع' },
+                    { key: 'created_at', label: 'تاریخ' }
+                ], filtered, item => `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <td class="px-3 py-2 font-medium">${item.title||'—'}</td>
+                    <td class="px-3 py-2 text-xs">${item.category||'—'}</td>
+                    <td class="px-3 py-2 text-xs">${item.type||'—'}</td>
+                    <td class="px-3 py-2 text-xs">${item.created_at ? String(item.created_at).slice(0,10) : '—'}</td>
+                    <td class="px-3 py-2 text-xs whitespace-nowrap">
+                        <button onclick="viewNote('${item.id}')" class="text-blue-600 ml-1">نمایش</button>
+                        <button onclick="editNote('${item.id}')" class="text-slate-500 ml-1">ویرایش</button>
+                        <button onclick="deleteItem('notes','${item.id}',fetchNotes)" class="text-red-500">حذف</button>
+                    </td>
+                </tr>`);
+                lucide.createIcons();
+                return;
+            }
+
             list.innerHTML = '';
             for (const item of filtered) {
                 const isLocked = item.type === 'رمزدار';

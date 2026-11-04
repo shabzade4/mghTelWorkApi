@@ -40,6 +40,19 @@
             if (err) { toast(err, 'error'); return; }
 
             const amountVal = parseFloat(V.toEnDigits(String(amountRaw)).replace(/,/g, ''));
+            const tTypeEarly = document.getElementById('tx-type').value;
+            const tCatEarly = document.getElementById('tx-category').value;
+            const timeEarly = document.getElementById('tx-time').value || '';
+            const dupT = await findDuplicate('tx', {
+                id,
+                type: tTypeEarly,
+                category: tCatEarly,
+                amount: amountVal,
+                date: dateVal ? V.toEnDigits(dateVal).replace(/-/g, '/') : '',
+                time: timeEarly,
+                description: desc
+            });
+            if (dupT) { toast(dupT, 'error'); return; }
             const tType = document.getElementById('tx-type').value;
             const tCat = document.getElementById('tx-category').value;
             const payload = {

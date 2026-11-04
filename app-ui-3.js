@@ -187,6 +187,8 @@
             const title = document.getElementById('calev-title').value.trim();
             const date = V.toEnDigits(document.getElementById('calev-date').value.trim()).replace(/-/g, '/');
             if (!title || !date) { toast('عنوان و تاریخ الزامی است', 'error'); return; }
+            const dupE = await findDuplicate('cal', { id, title, date });
+            if (dupE) { toast(dupE, 'error'); return; }
             const row = {
                 id, title, date,
                 time: document.getElementById('calev-time').value || '',
@@ -631,4 +633,124 @@ WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'admin');
             const um = document.getElementById('users-management-section');
             if (um && currentUserRole !== 'admin') um.classList.add('hidden');
             else if (um) { um.classList.remove('hidden'); fetchUsers(); }
+        };
+
+
+
+        // ==================== MULTI-DB / LOCAL API ====================
+        function onSetupDbModeChange() {
+            const mode = document.getElementById('setup-db-mode')?.value || 'supabase';
+            const su = document.getElementById('setup-supabase-fields');
+            const lo = document.getElementById('setup-local-fields');
+            if (su) su.classList.toggle('hidden', mode !== 'supabase');
+            if (lo) lo.classList.toggle('hidden', mode !== 'local-api');
+            const eng = document.getElementById('setup-engine');
+            const port = document.getElementById('setup-db-port');
+            if (eng && port) {
+                if (eng.value === 'mysql') port.value = port.value === '1433' ? '3306' : port.value;
+                if (eng.value === 'sqlserver') port.value = port.value === '3306' ? '1433' : port.value;
+            }
+        }
+
+        function downloadSchemaForEngine() {
+            const eng = document.getElementById('setup-engine')?.value || 'sqlserver';
+            if (eng === 'sqlserver') {
+                if (typeof downloadSchemaSql === 'function') {
+                    // try sqlserver schema first
+                    fetch('schema-sqlserver.sql').then(r => r.ok ? r.text() : Promise.reject()).then(text => {
+                        const blob = new Blob([text], { type: 'application/sql' });
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob); a.download = 'schema-sqlserver.sql'; a.click();
+                    }).catch(() => downloadSchemaSql());
+                }
+            } else {
+                toast('برای MySQL/SQLite از «ایجاد دیتابیس/جداول» در API لوکال استفاده کنید', 'info');
+            }
+        }
+
+        function downloadLocalApiZip() {
+            window.open('local-api.zip', '_blank');
+            toast('اگر دانلود نشد، پوشه local-api را از بسته نصب کپی کنید');
+        }
+
+        async function localApiCreateSchema() {
+            const base = (document.getElementById('setup-local-api')?.value || 'http://127.0.0.1:5055').replace(/\/$/, '');
+            const cfg = {
+                engine: document.getElementById('setup-engine')?.value || 'sqlserver',
+                host: document.getElementById('setup-db-host')?.value || 'localhost',
+                port: document.getElementById('setup-db-port')?.value || '1433',
+                database: document.getElementById('setup-db-name')?.value || 'MGH_App',
+                user: document.getElementById('setup-db-user')?.value || '',
+                password: document.getElementById('setup-db-pass')?.value || '',
+                trustCert: true
+            };
+            try {
+                let r = await fetch(base + '/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cfg) });
+                let j = await r.json();
+                if (!r.ok) throw new Error(j.error || 'config failed');
+                r = await fetch(base + '/api/create-schema', { method: 'POST' });
+                j = await r.json();
+                if (!r.ok) throw new Error(j.error || 'schema failed');
+                toast(j.message || 'جداول ایجاد شد');
+                const out = document.getElementById('setup-test-result');
+                if (out) out.innerText = JSON.stringify(j, null, 2);
+            } catch (e) {
+                toast('خطا: ' + (e.message || e) + ' — آیا npm start روی local-api اجراست؟', 'error');
+            }
+        }
+
+        async function localApiImportBackup() {
+            const base = (document.getElementById('setup-local-api')?.value || 'http://127.0.0.1:5055').replace(/\/$/, '');
+            try {
+                // Build backup from current supabase if available
+                let backup = {};
+                if (typeof BACKUP_TABLES !== 'undefined' && window._supabase) {
+                    for (const table of BACKUP_TABLES) {
+                        try {
+                            const { data } = await window._supabase.from(table).select('*');
+                            backup[table] = data || [];
+                        } catch (e) { backup[table] = []; }
+                    }
+                } else {
+                    toast('ابتدا به Supabase وصل باشید یا از بازیابی فایل JSON استفاده کنید', 'error');
+                    return;
+                }
+                const r = await fetch(base + '/api/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(backup) });
+                const j = await r.json();
+                if (!r.ok) throw new Error(j.error || 'import failed');
+                toast('همگام‌سازی انجام شد');
+                const out = document.getElementById('setup-test-result');
+                if (out) out.innerText = JSON.stringify(j.results || j, null, 2);
+            } catch (e) {
+                toast('خطا در همگام‌سازی: ' + (e.message || e), 'error');
+            }
+        }
+
+        // Patch saveServerSetup to support local mode flag
+        const _origSaveServerSetup = typeof saveServerSetup === 'function' ? saveServerSetup : null;
+        window.saveServerSetup = function() {
+            const mode = document.getElementById('setup-db-mode')?.value || 'supabase';
+            try {
+                localStorage.setItem('mgh_db_mode_v1', mode);
+                if (mode === 'local-api') {
+                    const api = (document.getElementById('setup-local-api')?.value || '').trim();
+                    localStorage.setItem('mgh_local_api_v1', JSON.stringify({
+                        api, engine: document.getElementById('setup-engine')?.value,
+                        host: document.getElementById('setup-db-host')?.value,
+                        port: document.getElementById('setup-db-port')?.value,
+                        database: document.getElementById('setup-db-name')?.value
+                    }));
+                    toast('حالت API لوکال ذخیره شد — اتصال داده هنوز از طریق Supabase است مگر لایه DB را عوض کنید');
+                    closeServerSetup();
+                    return;
+                }
+            } catch (e) {}
+            if (_origSaveServerSetup) return _origSaveServerSetup();
+            const url = document.getElementById('setup-url').value.trim();
+            const key = document.getElementById('setup-key').value.trim();
+            if (!url || !key) { toast('آدرس و کلید الزامی است', 'error'); return; }
+            reconnectSupabase(url, key);
+            if (typeof refreshCfgDisplay === 'function') refreshCfgDisplay();
+            toast('تنظیمات سرور ذخیره شد');
+            closeServerSetup();
         };

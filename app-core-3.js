@@ -54,6 +54,13 @@
             const paidCount = parseInt(V.toEnDigits(String(paidRaw || '0')), 10) || 0;
             const fee = parseFloat(V.toEnDigits(String(feeRaw || '0')).replace(/,/g, '')) || 0;
             if (paidCount > totalCount) { toast('اقساط پرداخت‌شده بیشتر از کل اقساط است', 'error'); return; }
+            const dupL = await findDuplicate('loan', {
+                id,
+                title,
+                bank: (document.getElementById('loan-bank')?.value || '').trim(),
+                total_amount: principal
+            });
+            if (dupL) { toast(dupL, 'error'); return; }
 
             const method = document.getElementById('loan-calc-method').value || 'amortization';
             const loanType = document.getElementById('loan-type').value;
@@ -434,6 +441,12 @@
             if (err) { toast(err, 'error'); return; }
 
             mobile = V.normalizeMobile(mobile);
+            const dupC = await findDuplicate('contact', {
+                id,
+                phones: [mobile, phone2, work, home].filter(Boolean),
+                email
+            });
+            if (dupC) { toast(dupC, 'error'); return; }
 
             let payload = {
                 name,
@@ -491,32 +504,66 @@
 
         function renderContacts(data) {
             const list = document.getElementById('contacts-list');
+            if (!list) return;
             if (!data || data.length === 0) {
                 list.innerHTML = `<p class="text-center text-slate-400 text-sm py-8 col-span-full">مخاطبی ثبت نشده است.</p>`;
                 return;
             }
-            const sorted = [...data].sort((a, b) => String(a.name||'').localeCompare(String(b.name||''), 'fa'));
+            const lv = (typeof getListView === 'function') ? getListView('contacts') : { mode: 'grid', sortKey: 'name', sortDir: 'asc' };
+            const sorted = (typeof sortRows === 'function') ? sortRows(data, lv.sortKey || 'name', lv.sortDir || 'asc') : [...data];
+            if (typeof updateListModeButtons === 'function') updateListModeButtons('contacts');
+
+            if (lv.mode === 'table') {
+                list.innerHTML = renderTableShell('contacts', [
+                    { key: 'name', label: 'نام' },
+                    { key: 'mobile', label: 'موبایل' },
+                    { key: 'email', label: 'ایمیل' },
+                    { key: 'category', label: 'دسته' },
+                    { key: 'created_at', label: 'زمان ثبت' }
+                ], sorted, item => {
+                    const mobile = item.mobile || item.phones || '';
+                    return `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="px-3 py-2 font-medium">${item.name || '—'}</td>
+                        <td class="px-3 py-2 ltr-num text-xs">${mobile || '—'}</td>
+                        <td class="px-3 py-2 text-xs truncate max-w-[140px]" dir="ltr">${item.email || '—'}</td>
+                        <td class="px-3 py-2 text-xs">${item.category || '—'}</td>
+                        <td class="px-3 py-2 text-xs ltr-num">${typeof fmtWhen==='function'?fmtWhen(item):''}</td>
+                        <td class="px-3 py-2 whitespace-nowrap">
+                            <button onclick="viewContact('${item.id}')" class="text-blue-600 text-xs ml-1">نمایش</button>
+                            <button onclick="editContact('${item.id}')" class="text-slate-500 text-xs ml-1">ویرایش</button>
+                            <button onclick="deleteItem('contacts','${item.id}',fetchContacts)" class="text-red-500 text-xs">حذف</button>
+                        </td>
+                    </tr>`;
+                });
+                lucide.createIcons();
+                return;
+            }
+
             list.innerHTML = sorted.map(item => {
                 const mobile = item.mobile || item.phones || '';
                 const phone2 = item.phone2 || '';
                 const actions = contactActionButtons(mobile, item.email);
                 const initial = (item.name || '?').charAt(0);
+                const compact = lv.mode === 'list';
+                const tiles = lv.mode === 'tiles';
+                const thumb = (typeof firstThumb === 'function') ? firstThumb(item) : '';
+                const face = thumb
+                    ? `<img src="${thumb}" alt="" class="${tiles ? 'w-full h-24 object-cover rounded-lg' : 'w-12 h-12 rounded-full object-cover avatar-ring'}">`
+                    : `<div class="${tiles ? 'w-full h-24 rounded-lg text-2xl' : 'w-12 h-12 rounded-full text-base'} bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shrink-0 avatar-ring">${initial}</div>`;
                 return `
-                    <div class="list-card">
+                    <div class="list-card ${compact ? '!p-3' : ''} ${tiles ? 'text-center' : ''}">
                         <div class="list-card-body">
-                            <div class="flex items-start gap-3">
-                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-base shrink-0 avatar-ring">
-                                    ${initial}
-                                </div>
+                            <div class="${tiles ? 'flex flex-col items-center gap-2' : 'flex items-start gap-3'}">
+                                ${face}
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center justify-between gap-2">
                                         <p class="font-bold text-base truncate">${item.name || '—'}</p>
                                         <span class="badge-soft bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 shrink-0">${item.category || 'سایر'}</span>
                                     </div>
                                     ${mobile ? `<p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5 ltr-num font-medium">${mobile}</p>` : ''}
-                                    ${phone2 ? `<p class="text-xs text-slate-500 ltr-num mt-0.5">${phone2}</p>` : ''}
+                                    ${!compact && phone2 ? `<p class="text-xs text-slate-500 ltr-num mt-0.5">${phone2}</p>` : ''}
                                     ${item.email ? `<p class="text-xs text-slate-400 mt-0.5 truncate" dir="ltr">${item.email}</p>` : ''}
-                                    ${item.address ? `<p class="text-xs text-slate-400 mt-0.5 truncate">${item.address}</p>` : ''}
+                                    ${!compact && item.address ? `<p class="text-xs text-slate-400 mt-0.5 truncate">${item.address}</p>` : ''}
                                 </div>
                             </div>
                         </div>

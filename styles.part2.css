@@ -1,11 +1,19 @@
 
         
         /* Size via root html so Tailwind rem scales everywhere without breaking layout */
-        html.size-xsmall { font-size: 12px; }
-        html.size-small { font-size: 13px; }
-        html.size-medium { font-size: 15px; }
-        html.size-large { font-size: 17px; }
-        html.size-xlarge { font-size: 19px; }
+        html { font-size: 16px; }
+        html.size-11 { font-size: 11px; }
+        html.size-12, html.size-xsmall { font-size: 12px; }
+        html.size-13 { font-size: 13px; }
+        html.size-14, html.size-small { font-size: 14px; }
+        html.size-15 { font-size: 15px; }
+        html.size-16, html.size-medium { font-size: 16px; }
+        html.size-17 { font-size: 17px; }
+        html.size-18, html.size-large { font-size: 18px; }
+        html.size-20, html.size-xlarge { font-size: 20px; }
+        html.size-22 { font-size: 22px; }
+        html.size-24 { font-size: 24px; }
+        select.input-field, select.input-field option { color: var(--text-main); background-color: var(--bg-card); }
         body.size-xsmall, body.size-small, body.size-medium, body.size-large, body.size-xlarge { font-size: 1rem; }
         
         /* Note colors */
@@ -152,3 +160,37 @@
         
         /* Number direction LTR */
         .ltr-num { direction: ltr; text-align: left; font-variant-numeric: tabular-nums; }
+
+        .view-bar {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+            gap: 0.5rem; margin-bottom: 0.5rem; padding: 0.45rem 0.6rem;
+            border: 1px solid var(--border); border-radius: 0.85rem; background: var(--bg-card);
+        }
+        .view-btn {
+            padding: 0.3rem 0.55rem; border-radius: 0.5rem; font-size: 11px;
+            background: color-mix(in srgb, var(--accent) 8%, var(--bg-card));
+            color: var(--text-main); border: 1px solid transparent;
+        }
+        .view-btn.view-btn-on, .view-btn:hover {
+            background: var(--accent); color: #fff;
+        }
+        .task-card { position: relative; overflow: visible; padding-top: 0.35rem; }
+        .task-done-check {
+            position: absolute; top: 8px; right: 8px;
+            width: 18px; height: 18px; margin: 0; z-index: 3;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .task-done-check input {
+            width: 14px; height: 14px; margin: 0; cursor: pointer;
+            accent-color: var(--accent);
+        }
+        .task-done-tip {
+            display: none; position: absolute; top: 20px; right: 0; z-index: 5;
+            background: rgba(15, 23, 42, 0.88); color: #f8fafc;
+            font-size: 11px; font-weight: 500; line-height: 1.4;
+            padding: 4px 8px; border-radius: 6px; white-space: nowrap;
+            pointer-events: none; box-shadow: 0 4px 12px rgb(0 0 0 / 0.18);
+        }
+        .task-done-check:hover .task-done-tip,
+        .task-done-check:focus-within .task-done-tip { display: block; }
+        .task-card .flex-1 { padding-right: 1.25rem; }

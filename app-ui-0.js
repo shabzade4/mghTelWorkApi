@@ -245,6 +245,12 @@
                 due_date ? V.jalaliDate(due_date) : null
             );
             if (err) { toast(err, 'error'); return; }
+            const dupK = await findDuplicate('task', {
+                id,
+                title,
+                due_date: due_date ? V.toEnDigits(due_date).replace(/-/g, '/') : ''
+            });
+            if (dupK) { toast(dupK, 'error'); return; }
 
             const status = document.getElementById('task-status').value;
             const priority = document.getElementById('task-priority').value || 'متوسط';
@@ -348,16 +354,51 @@
                 return;
             }
 
+            if (typeof updateListModeButtons === 'function') updateListModeButtons('tasks');
+            const lv = (typeof getListView === 'function') ? getListView('tasks') : { mode: 'list', sortKey: 'created_at', sortDir: 'desc' };
+            filtered = (typeof sortRows === 'function') ? sortRows(filtered, lv.sortKey, lv.sortDir) : filtered;
+
+            if (lv.mode === 'table') {
+                list.innerHTML = renderTableShell('tasks', [
+                    { key: 'title', label: 'عنوان' },
+                    { key: 'priority', label: 'اولویت' },
+                    { key: 'status', label: 'وضعیت' },
+                    { key: 'due_date', label: 'سررسید' }
+                ], filtered, item => {
+                    const isDone = !!(item.is_completed || item.status === 'انجام شده');
+                    const tid = item.id;
+                    return `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 ${isDone?'opacity-60':''}">
+                        <td class="px-3 py-2 font-medium ${isDone?'line-through':''}">${item.title||'—'}</td>
+                        <td class="px-3 py-2 text-xs">${item.priority||'—'}</td>
+                        <td class="px-3 py-2 text-xs">${item.status||'—'}</td>
+                        <td class="px-3 py-2 text-xs ltr-num">${item.due_date||'—'}${item.due_time?' '+item.due_time:''}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-xs">
+                            <button onclick="viewTask('${tid}')" class="text-blue-600 ml-1">نمایش</button>
+                            <button onclick="editTask('${tid}')" class="text-slate-500 ml-1">ویرایش</button>
+                            <button onclick="deleteItem('tasks','${tid}',fetchTasks)" class="text-red-500">حذف</button>
+                        </td>
+                    </tr>`;
+                });
+                lucide.createIcons();
+                return;
+            }
+
             list.innerHTML = '';
             filtered.forEach(item => {
                 const isDone = !!(item.is_completed || item.status === 'انجام شده');
                 const priColor = item.priority === 'فوری' ? 'bg-red-100 text-red-700' : item.priority === 'کم' ? 'bg-slate-100 text-slate-600' : 'bg-amber-100 text-amber-700';
                 const tid = item.id;
+                const thumb = (typeof firstThumb === 'function') ? firstThumb(item) : '';
+                const tiles = lv.mode === 'tiles';
                 list.innerHTML += `
-                    <div class="list-card ${isDone ? 'opacity-60' : ''}">
-                        <div class="flex items-start gap-3">
-                            <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleTask('${tid}', ${!isDone})" class="mt-1 w-5 h-5 rounded text-blue-600">
-                            <div class="flex-1 min-w-0">
+                    <div class="list-card task-card ${isDone ? 'opacity-60' : ''} ${tiles ? 'text-center' : ''}">
+                        <label class="task-done-check" title="با زدن این تیک، کار انجام‌شده می‌شود">
+                            <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleTask('${tid}', ${!isDone})" aria-label="انجام شد">
+                            <span class="task-done-tip">با زدن این تیک، کار انجام‌شده می‌شود</span>
+                        </label>
+                        <div class="flex items-start gap-3 ${tiles ? 'flex-col items-center' : ''}">
+                            ${thumb ? `<img src="${thumb}" alt="" class="${tiles ? 'w-full h-20 object-cover rounded-lg' : 'w-10 h-10 rounded-lg object-cover'}">` : ''}
+                            <div class="flex-1 min-w-0 ${tiles ? 'w-full' : ''}">
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="font-medium text-sm ${isDone ? 'line-through' : ''}">${item.title || '—'}</span>
                                     <span class="text-[10px] px-2 py-0.5 rounded-full ${priColor}">${item.priority || 'متوسط'}</span>
@@ -476,6 +517,8 @@
                 type === 'رمزدار' ? V.password(notePass, true) : null
             );
             if (err) { toast(err, 'error'); return; }
+            const dupN = await findDuplicate('note', { id, title, category });
+            if (dupN) { toast(dupN, 'error'); return; }
 
             let storeContent = content;
             if (encryptionEnabled && content) storeContent = await encryptSensitive(content);

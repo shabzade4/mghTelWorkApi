@@ -7,11 +7,21 @@
 
         // ==================== AUTH ====================
         window.onload = async () => {
+            try { applyStoredLook(); } catch (e) {}
             document.getElementById('login-modal').classList.remove('hidden');
             document.getElementById('login-modal').classList.add('flex');
             document.getElementById('sidebar').classList.add('hidden');
             document.getElementById('main-wrapper').classList.add('hidden');
             lucide.createIcons();
+
+            const sess = (typeof validateSession === 'function') ? validateSession() : null;
+            if (sess && sess.user) {
+                currentUser = sess.user;
+                currentUserRole = sess.role || localStorage.getItem('mgh_role') || 'admin';
+                encryptionEnabled = localStorage.getItem('mgh_encrypt') !== '0';
+                showApp();
+                return;
+            }
             
             // Ensure default admin exists
             try {
@@ -270,24 +280,78 @@
         }
 
         // ==================== THEME / FONT ====================
+        const FONT_PX = {
+            'size-11': 11, 'size-12': 12, 'size-xsmall': 12, 'size-13': 13, 'size-small': 14,
+            'size-14': 14, 'size-15': 15, 'size-medium': 16, 'size-16': 16, 'size-17': 17,
+            'size-large': 18, 'size-18': 18, 'size-20': 20, 'size-xlarge': 20, 'size-22': 22, 'size-24': 24
+        };
+        function applyStoredLook() {
+            try {
+                const theme = localStorage.getItem('mgh_theme');
+                const font = localStorage.getItem('mgh_font');
+                const size = localStorage.getItem('mgh_font_size');
+                const px = localStorage.getItem('mgh_font_px');
+                if (theme) changeTheme(theme);
+                if (font) changeFont(font);
+                if (size) changeFontSize(size);
+                if (px) changeFontPx(px, false);
+                const accent = localStorage.getItem('mgh_custom_accent');
+                if (accent && theme === 'custom') {
+                    document.documentElement.style.setProperty('--custom-accent', accent);
+                    const body = document.getElementById('app-body');
+                    if (body) body.style.setProperty('--accent', accent);
+                }
+            } catch (e) {}
+        }
         function changeTheme(theme) {
             const body = document.getElementById('app-body');
             const classes = body.className.split(/\s+/).filter(c => c && !c.startsWith('theme-'));
             body.className = [...classes, `theme-${theme}`].join(' ');
+            try { localStorage.setItem('mgh_theme', theme); } catch (e) {}
+            const sel = document.getElementById('prof-theme');
+            if (sel && sel.value !== theme) sel.value = theme;
         }
         function changeFont(fontClass) {
             const body = document.getElementById('app-body');
             const classes = body.className.split(/\s+/).filter(c => c && !c.startsWith('font-'));
             body.className = [...classes, fontClass].join(' ');
-            // charts use Vazirmatn by default; no need to break layout
+            try { localStorage.setItem('mgh_font', fontClass); } catch (e) {}
         }
         function changeFontSize(sizeClass) {
             const html = document.documentElement;
-            html.classList.remove('size-xsmall', 'size-small', 'size-medium', 'size-large', 'size-xlarge');
+            const known = Object.keys(FONT_PX);
+            known.forEach(k => html.classList.remove(k));
             html.classList.add(sizeClass);
             const body = document.getElementById('app-body');
-            const classes = body.className.split(/\s+/).filter(c => c && !c.startsWith('size-'));
+            const classes = body.className.split(/\s+/).filter(c => c && !known.includes(c) && !c.startsWith('size-'));
             body.className = [...classes, sizeClass].join(' ');
+            const px = FONT_PX[sizeClass] || 16;
+            html.style.fontSize = px + 'px';
+            try {
+                localStorage.setItem('mgh_font_size', sizeClass);
+                localStorage.setItem('mgh_font_px', String(px));
+            } catch (e) {}
+            const range = document.getElementById('prof-size-range');
+            const lab = document.getElementById('prof-size-label');
+            if (range) range.value = String(px);
+            if (lab) lab.innerText = px + 'px';
+        }
+        function changeFontPx(px, syncSelect) {
+            let n = parseInt(px, 10);
+            if (!n || n < 11) n = 11;
+            if (n > 24) n = 24;
+            document.documentElement.style.fontSize = n + 'px';
+            try { localStorage.setItem('mgh_font_px', String(n)); } catch (e) {}
+            const lab = document.getElementById('prof-size-label');
+            if (lab) lab.innerText = n + 'px';
+            if (syncSelect !== false) {
+                const match = Object.keys(FONT_PX).find(k => FONT_PX[k] === n);
+                if (match) {
+                    const sel = document.getElementById('prof-size');
+                    if (sel) sel.value = match;
+                    try { localStorage.setItem('mgh_font_size', match); } catch (e) {}
+                }
+            }
         }
 
         // ==================== PROFILE ====================

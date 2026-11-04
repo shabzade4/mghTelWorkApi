@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "framework": null,
-  "buildCommand": "",
-  "installCommand": "",
   "cleanUrls": true,
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }

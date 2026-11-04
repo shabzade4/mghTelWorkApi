@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
-    <title>سیستم جامع مدیریت هوشمند | نسخه ۳.۹.۲ حرفه‌ای</title>
+    <title>سیستم جامع مدیریت هوشمند | نسخه ۴.۰.۲ حرفه‌ای</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="tailwind-config.js?v=3.9.2"></script>
+    <script src="tailwind-config.js?v=4.0.2"></script>
     
     
     <!-- Supabase -->
@@ -37,7 +37,7 @@
     
     <!-- Persian Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="styles.css?v=3.9.2">
+        <link rel="stylesheet" href="styles.css?v=4.0.2">
 </head>
 <body id="app-body" class="theme-slate font-vazir size-small min-h-screen flex">
 
@@ -49,7 +49,7 @@
                     <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
                 </div>
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white">ورود امن به سامانه</h1>
-                <p class="text-sm text-slate-500 mt-1">نسخه ۳.۹.۲ حرفه‌ای · مدیریت جامع شخصی</p>
+                <p class="text-sm text-slate-500 mt-1">نسخه ۴.۰.۲ حرفه‌ای · مدیریت جامع شخصی</p>
             </div>
             <form onsubmit="handleLogin(event); return false;" class="space-y-5" autocomplete="off">
                 <div>
@@ -95,8 +95,17 @@
     <div id="server-setup-modal" class="fixed inset-0 z-[110] hidden items-center justify-center p-4 modal-backdrop">
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-lg shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[92vh] overflow-y-auto animate-fade">
             <h2 class="text-lg font-bold mb-1">راه‌اندازی دیتابیس و سرور</h2>
-            <p class="text-xs text-slate-500 mb-4">نسخه <span id="setup-app-ver">۳.۹.۲</span> · در اولین اجرا یا تغییر پروژه Supabase این بخش را کامل کنید.</p>
+            <p class="text-xs text-slate-500 mb-4">نسخه <span id="setup-app-ver">۴.۰.۲</span> · در اولین اجرا یا تغییر پروژه Supabase این بخش را کامل کنید.</p>
             <div class="space-y-3 text-sm">
+                <div>
+                    <label class="text-xs font-medium mb-1 block">نوع اتصال دیتابیس</label>
+                    <select id="setup-db-mode" class="input-field text-sm" onchange="onSetupDbModeChange()">
+                        <option value="supabase">Supabase (ابری — فعلی)</option>
+                        <option value="local-api">API لوکال → SQL Server / MySQL / SQLite</option>
+                    </select>
+                    <p class="text-[10px] text-slate-500 mt-1">مرورگر مستقیماً به SQL Server/MySQL وصل نمی‌شود؛ یک پل کوچک روی سیستم شما اجرا می‌شود.</p>
+                </div>
+                <div id="setup-supabase-fields" class="space-y-3">
                 <div>
                     <label class="text-xs font-medium mb-1 block">Supabase Project URL *</label>
                     <input type="url" id="setup-url" class="input-field ltr-num" dir="ltr" placeholder="https://xxxx.supabase.co">
@@ -104,6 +113,57 @@
                 <div>
                     <label class="text-xs font-medium mb-1 block">Anon / Publishable Key *</label>
                     <textarea id="setup-key" rows="3" class="input-field ltr-num text-xs" dir="ltr" placeholder="eyJhbGciOi..."></textarea>
+                </div>
+                </div>
+                <div id="setup-local-fields" class="space-y-3 hidden">
+                    <div>
+                        <label class="text-xs font-medium mb-1 block">آدرس API لوکال</label>
+                        <input type="url" id="setup-local-api" class="input-field ltr-num" dir="ltr" placeholder="http://127.0.0.1:5055" value="http://127.0.0.1:5055">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-xs font-medium mb-1 block">موتور دیتابیس</label>
+                            <select id="setup-engine" class="input-field text-sm">
+                                <option value="sqlserver">Microsoft SQL Server</option>
+                                <option value="mysql">MySQL / MariaDB</option>
+                                <option value="sqlite">SQLite (فایل لوکال)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium mb-1 block">هاست / سرور</label>
+                            <input id="setup-db-host" class="input-field ltr-num text-sm" dir="ltr" placeholder="localhost" value="localhost">
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium mb-1 block">پورت</label>
+                            <input id="setup-db-port" class="input-field ltr-num text-sm" dir="ltr" placeholder="1433" value="1433">
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium mb-1 block">نام دیتابیس</label>
+                            <input id="setup-db-name" class="input-field text-sm" placeholder="MGH_App" value="MGH_App">
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium mb-1 block">کاربر</label>
+                            <input id="setup-db-user" class="input-field ltr-num text-sm" dir="ltr" placeholder="sa">
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium mb-1 block">رمز</label>
+                            <input type="password" id="setup-db-pass" class="input-field text-sm">
+                        </div>
+                    </div>
+                    <div class="rounded-xl border p-3 text-[11px] space-y-2" style="border-color:var(--border)">
+                        <p class="font-semibold">راه‌اندازی پل لوکال</p>
+                        <ol class="list-decimal list-inside text-slate-500 space-y-1">
+                            <li>پوشه <code class="ltr-num">local-api</code> را دانلود کنید</li>
+                            <li><code class="ltr-num">npm install</code> سپس <code class="ltr-num">npm start</code></li>
+                            <li>اینجا «ایجاد جداول» و «همگام‌سازی از بکاپ» را بزنید</li>
+                        </ol>
+                        <div class="flex flex-wrap gap-2 pt-1">
+                            <button type="button" onclick="downloadLocalApiZip()" class="btn-secondary px-2 py-1.5 rounded-lg text-[11px]">دانلود local-api</button>
+                            <button type="button" onclick="downloadSchemaForEngine()" class="btn-secondary px-2 py-1.5 rounded-lg text-[11px]">دانلود اسکیما</button>
+                            <button type="button" onclick="localApiCreateSchema()" class="btn-primary px-2 py-1.5 rounded-lg text-[11px]">ایجاد دیتابیس/جداول</button>
+                            <button type="button" onclick="localApiImportBackup()" class="btn-success px-2 py-1.5 rounded-lg text-[11px]">همگام‌سازی بکاپ → DB</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="rounded-xl border p-3 text-xs space-y-2" style="border-color:var(--border)">
                     <p class="font-semibold">مرحله ۱ — ساخت جداول</p>
@@ -138,7 +198,7 @@
                 <img id="sidebar-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" class="w-11 h-11 rounded-full border-2 border-white/30 object-cover bg-white/10 cursor-pointer hover:ring-2 hover:ring-white/50" onclick="openUserProfileModal()" title="مشاهده پروفایل">
                 <div class="min-w-0">
                     <h2 class="font-bold text-sm truncate" id="sidebar-username">مدیر سیستم</h2>
-                    <span class="text-[10px] opacity-60" id="app-version-label">نسخه ۳.۹.۲</span>
+                    <span class="text-[10px] opacity-60" id="app-version-label">نسخه ۴.۰.۲</span>
                 </div>
             </div>
         </div>
@@ -396,7 +456,26 @@
                             </select>
                         </div>
                     </div>
-                    <div id="transactions-list" class="space-y-2"></div>
+                    
+<div class="view-bar">
+                    <div class="flex items-center gap-1 flex-wrap">
+                        <span class="text-xs text-slate-500 ml-1">نمایش</span>
+                        <button type="button" data-list-mode-for="transactions" data-mode="tiles" onclick="setListMode('transactions','tiles')" class="view-btn" title="نماد بزرگ همراه تصویر">تصویر</button>
+                        <button type="button" data-list-mode-for="transactions" data-mode="grid" onclick="setListMode('transactions','grid')" class="view-btn" title="چند باکس در هر ردیف">باکس</button>
+                        <button type="button" data-list-mode-for="transactions" data-mode="list" onclick="setListMode('transactions','list')" class="view-btn" title="لیست سطری">سطر</button>
+                        <button type="button" data-list-mode-for="transactions" data-mode="table" onclick="setListMode('transactions','table')" class="view-btn" title="جزئیات ستونی؛ کلیک روی عنوان ستون مرتب می‌کند">جزئیات</button>
+                    </div>
+                    <label class="flex items-center gap-1 text-xs text-slate-500">مرتب‌سازی
+                        <select id="transactions-sort" class="input-field w-auto text-xs py-1.5" onchange="setListSortPreset('transactions', this.value)">
+                            <option value="date:desc">تاریخ، جدید</option>
+<option value="date:asc">تاریخ، قدیم</option>
+<option value="amount:desc">مبلغ زیاد</option>
+<option value="amount:asc">مبلغ کم</option>
+<option value="category:asc">دسته</option>
+                        </select>
+                    </label>
+                </div>
+<div id="transactions-list" class="space-y-2"></div>
                 </div>
             </section>
 
@@ -422,7 +501,26 @@
                     <input type="text" id="contact-search" placeholder="جستجو در مخاطبین..." oninput="filterContacts()" class="input-field">
                 </div>
                 
-                <div id="contacts-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+                
+<div class="view-bar">
+                    <div class="flex items-center gap-1 flex-wrap">
+                        <span class="text-xs text-slate-500 ml-1">نمایش</span>
+                        <button type="button" data-list-mode-for="contacts" data-mode="tiles" onclick="setListMode('contacts','tiles')" class="view-btn" title="نماد بزرگ همراه تصویر">تصویر</button>
+                        <button type="button" data-list-mode-for="contacts" data-mode="grid" onclick="setListMode('contacts','grid')" class="view-btn" title="چند باکس در هر ردیف">باکس</button>
+                        <button type="button" data-list-mode-for="contacts" data-mode="list" onclick="setListMode('contacts','list')" class="view-btn" title="لیست سطری">سطر</button>
+                        <button type="button" data-list-mode-for="contacts" data-mode="table" onclick="setListMode('contacts','table')" class="view-btn" title="جزئیات ستونی؛ کلیک روی عنوان ستون مرتب می‌کند">جزئیات</button>
+                    </div>
+                    <label class="flex items-center gap-1 text-xs text-slate-500">مرتب‌سازی
+                        <select id="contacts-sort" class="input-field w-auto text-xs py-1.5" onchange="setListSortPreset('contacts', this.value)">
+                            <option value="created_at:desc">جدیدترین</option>
+<option value="created_at:asc">قدیمی‌ترین</option>
+<option value="name:asc">نام الفبا</option>
+<option value="name:desc">نام معکوس</option>
+<option value="category:asc">دسته</option>
+                        </select>
+                    </label>
+                </div>
+<div id="contacts-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
             </section>
 
             <!-- ========== TASKS ========== -->
@@ -441,7 +539,28 @@
                     <button onclick="setTaskFilter('urgent')" id="tf-urgent" class="chip">فوری</button>
                 </div>
                 
-                <div id="tasks-list" class="space-y-2"></div>
+                
+<div class="view-bar">
+                    <div class="flex items-center gap-1 flex-wrap">
+                        <span class="text-xs text-slate-500 ml-1">نمایش</span>
+                        <button type="button" data-list-mode-for="tasks" data-mode="tiles" onclick="setListMode('tasks','tiles')" class="view-btn" title="نماد بزرگ همراه تصویر">تصویر</button>
+                        <button type="button" data-list-mode-for="tasks" data-mode="grid" onclick="setListMode('tasks','grid')" class="view-btn" title="چند باکس در هر ردیف">باکس</button>
+                        <button type="button" data-list-mode-for="tasks" data-mode="list" onclick="setListMode('tasks','list')" class="view-btn" title="لیست سطری">سطر</button>
+                        <button type="button" data-list-mode-for="tasks" data-mode="table" onclick="setListMode('tasks','table')" class="view-btn" title="جزئیات ستونی؛ کلیک روی عنوان ستون مرتب می‌کند">جزئیات</button>
+                    </div>
+                    <label class="flex items-center gap-1 text-xs text-slate-500">مرتب‌سازی
+                        <select id="tasks-sort" class="input-field w-auto text-xs py-1.5" onchange="setListSortPreset('tasks', this.value)">
+                            <option value="created_at:desc">جدیدترین</option>
+<option value="created_at:asc">قدیمی‌ترین</option>
+<option value="due_date:asc">سررسید نزدیک</option>
+<option value="due_date:desc">سررسید دور</option>
+<option value="title:asc">موضوع الفبا</option>
+<option value="title:desc">موضوع معکوس</option>
+<option value="priority:asc">اولویت</option>
+                        </select>
+                    </label>
+                </div>
+<div id="tasks-list" class="space-y-2"></div>
             </section>
 
             <!-- ========== NOTES ========== -->
@@ -457,7 +576,26 @@
                     <button onclick="setNoteFilter('')" class="chip active note-filter-btn" data-cat="">همه</button>
                 </div>
                 
-                <div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+                
+<div class="view-bar">
+                    <div class="flex items-center gap-1 flex-wrap">
+                        <span class="text-xs text-slate-500 ml-1">نمایش</span>
+                        <button type="button" data-list-mode-for="notes" data-mode="tiles" onclick="setListMode('notes','tiles')" class="view-btn" title="نماد بزرگ همراه تصویر">تصویر</button>
+                        <button type="button" data-list-mode-for="notes" data-mode="grid" onclick="setListMode('notes','grid')" class="view-btn" title="چند باکس در هر ردیف">باکس</button>
+                        <button type="button" data-list-mode-for="notes" data-mode="list" onclick="setListMode('notes','list')" class="view-btn" title="لیست سطری">سطر</button>
+                        <button type="button" data-list-mode-for="notes" data-mode="table" onclick="setListMode('notes','table')" class="view-btn" title="جزئیات ستونی؛ کلیک روی عنوان ستون مرتب می‌کند">جزئیات</button>
+                    </div>
+                    <label class="flex items-center gap-1 text-xs text-slate-500">مرتب‌سازی
+                        <select id="notes-sort" class="input-field w-auto text-xs py-1.5" onchange="setListSortPreset('notes', this.value)">
+                            <option value="created_at:desc">جدیدترین</option>
+<option value="created_at:asc">قدیمی‌ترین</option>
+<option value="title:asc">موضوع الفبا</option>
+<option value="title:desc">موضوع معکوس</option>
+<option value="category:asc">دسته</option>
+                        </select>
+                    </label>
+                </div>
+<div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
             </section>
 
             <!-- ========== CALENDAR ========== -->
@@ -687,12 +825,20 @@
                                 <div>
                                     <label class="block text-sm font-medium mb-1">اندازه</label>
                                     <select id="prof-size" class="input-field" onchange="changeFontSize(this.value)">
-                                        <option value="size-xsmall">خیلی کوچک</option>
-                                        <option value="size-small">کوچک</option>
-                                        <option value="size-medium">متوسط</option>
-                                        <option value="size-large">بزرگ</option>
-                                        <option value="size-xlarge">خیلی بزرگ</option>
+                                        <option value="size-11">۱۱</option>
+                                        <option value="size-12">۱۲</option>
+                                        <option value="size-13">۱۳</option>
+                                        <option value="size-14">۱۴</option>
+                                        <option value="size-15">۱۵</option>
+                                        <option value="size-16" selected>۱۶</option>
+                                        <option value="size-17">۱۷</option>
+                                        <option value="size-18">۱۸</option>
+                                        <option value="size-20">۲۰</option>
+                                        <option value="size-22">۲۲</option>
+                                        <option value="size-24">۲۴</option>
                                     </select>
+                                    <input type="range" id="prof-size-range" min="11" max="24" value="16" class="w-full mt-2" oninput="changeFontPx(this.value)">
+                                    <p class="text-[11px] text-slate-500 mt-1">اندازه پایه: <span id="prof-size-label">16px</span> — در کل برنامه اعمال می‌شود</p>
                                 </div>
                             </div>
                             <div>
@@ -808,7 +954,7 @@
                     <h2 class="font-bold text-base flex items-center gap-2"><i data-lucide="info" class="w-5 h-5"></i> درباره برنامه</h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-300">
                         <p><strong>نام:</strong> سیستم جامع مدیریت هوشمند</p>
-                        <p><strong>نسخه:</strong> <span id="about-version">۳.۹.۲</span></p>
+                        <p><strong>نسخه:</strong> <span id="about-version">۴.۰.۲</span></p>
                         <p><strong>ساخت:</strong> ۱۴۰۵ · اکتبر ۲۰۲۶</p>
                         <p><strong>نوع:</strong> PWA · چندکاربره · آنلاین</p>
                         <p class="sm:col-span-2"><strong>امکانات:</strong> مالی و وام بانکی ایران · مخاطبین · کارها و یادآور · یادداشت · تقویم شمسی · گزارش و نمودار · لاگ · بکاپ JSON · خروجی اکسل · نوتیفیکیشن مرورگر · تم و فونت</p>
@@ -1380,13 +1526,15 @@
     </div>
 
     
-        <script src="app-core-0.js?v=3.9.2"></script>
-    <script src="app-core-1.js?v=3.9.2"></script>
-    <script src="app-core-2.js?v=3.9.2"></script>
-    <script src="app-core-3.js?v=3.9.2"></script>
-    <script src="app-ui-0.js?v=3.9.2"></script>
-    <script src="app-ui-1.js?v=3.9.2"></script>
-    <script src="app-ui-2.js?v=3.9.2"></script>
-    <script src="app-ui-3.js?v=3.9.2"></script>
+        <script src="dupes.js?v=4.0.2"></script>
+    <script src="list-view.js?v=4.0.2"></script>
+    <script src="app-core-0.js?v=4.0.2"></script>
+    <script src="app-core-1.js?v=4.0.2"></script>
+    <script src="app-core-2.js?v=4.0.2"></script>
+    <script src="app-core-3.js?v=4.0.2"></script>
+    <script src="app-ui-0.js?v=4.0.2"></script>
+    <script src="app-ui-1.js?v=4.0.2"></script>
+    <script src="app-ui-2.js?v=4.0.2"></script>
+    <script src="app-ui-3.js?v=4.0.2"></script>
 </body>
 </html>

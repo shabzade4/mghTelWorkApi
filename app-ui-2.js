@@ -389,6 +389,8 @@
             const role = document.getElementById('user-role').value;
 
             if (!username || !display_name) { alert('نام کاربری و نام نمایشی الزامی است'); return; }
+            const dupU = await findDuplicate('user', { id, username });
+            if (dupU) { alert(dupU); return; }
 
             const payload = { username, display_name, role, is_active: true };
             if (password) {
