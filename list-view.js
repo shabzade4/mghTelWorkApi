@@ -80,14 +80,8 @@
         }
         const el = document.getElementById(section + '-list');
         if (!el) return;
-        el.classList.remove(
-            'grid', 'grid-cols-2', 'grid-cols-1', 'sm:grid-cols-3', 'md:grid-cols-2', 'md:grid-cols-4',
-            'xl:grid-cols-3', 'xl:grid-cols-6', 'gap-3', 'gap-2', 'space-y-2', 'space-y-0'
-        );
-        if (s.mode === 'tiles') el.classList.add('grid', 'grid-cols-2', 'sm:grid-cols-3', 'md:grid-cols-4', 'xl:grid-cols-6', 'gap-3');
-        else if (s.mode === 'grid') el.classList.add('grid', 'grid-cols-1', 'md:grid-cols-2', 'xl:grid-cols-3', 'gap-3');
-        else if (s.mode === 'list') el.classList.add('space-y-2');
-        else el.classList.add('space-y-0');
+        const mode = s.mode === 'table' ? 'table' : (s.mode || 'list');
+        el.className = 'lv-' + mode;
     };
 
     window.sortRows = function (rows, key, dir) {

@@ -582,13 +582,26 @@
                 const compact = lv.mode === 'list';
                 const tiles = lv.mode === 'tiles';
                 const thumb = (typeof firstThumb === 'function') ? firstThumb(item) : '';
+                const faceInner = thumb ? `<img src="${thumb}" alt="">` : `<span class="letter">${initial}</span>`;
+                if (tiles) {
+                    return `
+                    <div class="list-card contact-tile">
+                        <div class="tile-face">${faceInner}</div>
+                        <p class="tile-name">${item.name || '—'}</p>
+                        <p class="tile-sub">${mobile || item.email || ''}</p>
+                        <div class="list-card-actions" style="justify-content:center">
+                            <button onclick="viewContact('${item.id}')" class="action-btn action-view">نمایش</button>
+                            <button onclick="editContact('${item.id}')" class="action-btn action-edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                        </div>
+                    </div>`;
+                }
                 const face = thumb
-                    ? `<img src="${thumb}" alt="" class="${tiles ? 'w-full h-24 object-cover rounded-lg' : 'w-12 h-12 rounded-full object-cover avatar-ring'}">`
-                    : `<div class="${tiles ? 'w-full h-24 rounded-lg text-2xl' : 'w-12 h-12 rounded-full text-base'} bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shrink-0 avatar-ring">${initial}</div>`;
+                    ? `<img src="${thumb}" alt="" class="w-12 h-12 rounded-full object-cover avatar-ring">`
+                    : `<div class="w-12 h-12 rounded-full text-base bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shrink-0 avatar-ring">${initial}</div>`;
                 return `
-                    <div class="list-card ${compact ? '!p-3' : ''} ${tiles ? 'text-center' : ''}">
+                    <div class="list-card ${compact ? '!p-3' : ''}">
                         <div class="list-card-body">
-                            <div class="${tiles ? 'flex flex-col items-center gap-2' : 'flex items-start gap-3'}">
+                            <div class="flex items-start gap-3">
                                 ${face}
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center justify-between gap-2">

@@ -65,7 +65,7 @@
                 const attBadge = parseAttachments(item.attachments).length
                     ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700">📎 ${parseAttachments(item.attachments).length}</span>` : '';
                 list.innerHTML += `
-                    <div class="list-card ${colorClass} flex flex-col justify-between min-h-[140px]">
+                    <div class="list-card note-pad ${colorClass} flex flex-col justify-between ${lvN.mode === 'tiles' ? '' : 'min-h-[140px]'}">
                         <div>
                             <div class="flex justify-between items-start gap-2 mb-2">
                                 <h4 class="font-bold text-sm">${item.title}</h4>

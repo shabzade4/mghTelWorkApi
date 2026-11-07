@@ -391,24 +391,23 @@
                 const thumb = (typeof firstThumb === 'function') ? firstThumb(item) : '';
                 const tiles = lv.mode === 'tiles';
                 list.innerHTML += `
-                    <div class="list-card task-card ${isDone ? 'opacity-60' : ''} ${tiles ? 'text-center' : ''}">
-                        <label class="task-done-check" title="با زدن این تیک، کار انجام‌شده می‌شود">
-                            <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleTask('${tid}', ${!isDone})" aria-label="انجام شد">
-                            <span class="task-done-tip">با زدن این تیک، کار انجام‌شده می‌شود</span>
-                        </label>
-                        <div class="flex items-start gap-3 ${tiles ? 'flex-col items-center' : ''}">
-                            ${thumb ? `<img src="${thumb}" alt="" class="${tiles ? 'w-full h-20 object-cover rounded-lg' : 'w-10 h-10 rounded-lg object-cover'}">` : ''}
-                            <div class="flex-1 min-w-0 ${tiles ? 'w-full' : ''}">
+                    <div class="list-card task-card ${isDone ? 'opacity-60' : ''}">
+                        <div class="task-head">
+                            <label class="task-done-check" title="با زدن این تیک، کار انجام‌شده می‌شود">
+                                <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleTask('${tid}', ${!isDone})" aria-label="انجام شد">
+                                <span class="task-done-tip">با زدن این تیک، کار انجام‌شده می‌شود</span>
+                            </label>
+                            <div class="task-main">
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="font-medium text-sm ${isDone ? 'line-through' : ''}">${item.title || '—'}</span>
                                     <span class="text-[10px] px-2 py-0.5 rounded-full ${priColor}">${item.priority || 'متوسط'}</span>
                                     ${item.status ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">${item.status}</span>` : ''}
                                 </div>
-                                ${item.description ? `<p class="text-xs text-slate-500 mt-1 line-clamp-2">${item.description}</p>` : ''}
-                                <div class="flex gap-3 mt-2 text-xs text-slate-400">
+                                ${!tiles && item.description ? `<p class="text-xs text-slate-500 mt-1 line-clamp-2">${item.description}</p>` : ''}
+                                ${!tiles ? `<div class="flex gap-3 mt-2 text-xs text-slate-400">
                                     ${item.due_date ? `<span>📅 ${item.due_date}${item.due_time ? ' ' + item.due_time : ''}</span>` : ''}
                                     ${item.reminder_minutes > 0 ? `<span>🔔 ${item.reminder_minutes} دقیقه قبل</span>` : ''}
-                                </div>
+                                </div>` : (item.due_date ? `<p class="text-[11px] text-slate-400 mt-1">${item.due_date}</p>` : '')}
                             </div>
                         </div>
                         <div class="flex gap-2 mt-3 pt-3 border-t" style="border-color:var(--border)">
