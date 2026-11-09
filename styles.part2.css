@@ -216,3 +216,38 @@
         .contact-tile .tile-name { font-weight: 700; font-size: 0.9rem; margin: 8px 8px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .contact-tile .tile-sub { font-size: 0.75rem; color: #64748b; margin: 2px 8px 8px; direction: ltr; }
 
+        /* v4.0.5 visual polish */
+        body {
+            line-height: 1.65;
+            letter-spacing: -0.01em;
+            -webkit-font-smoothing: antialiased;
+        }
+        .theme-indigo, .theme-emerald, .theme-rose, .theme-amber, .theme-cyan,
+        .theme-violet, .theme-teal, .theme-sky, .theme-lime, .theme-orange,
+        .theme-pink, .theme-stone, .theme-blue, .theme-grape, .theme-mint,
+        .theme-sand, .theme-coral, .theme-slate {
+            --text-muted: #64748b;
+        }
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -16px rgb(15 23 42 / 0.18);
+        }
+        .list-card { border-radius: 0.9rem; }
+        .section-title { letter-spacing: -0.02em; }
+        .view-bar {
+            background: color-mix(in srgb, var(--bg-card) 88%, var(--accent));
+        }
+        .chip.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: transparent;
+        }
+        header.card { backdrop-filter: blur(10px); }
+        #global-search { height: 2.75rem; }
+        .btn-primary, .btn-success, .btn-secondary { border-radius: 0.8rem; }
+        .stat-card { border-radius: 1rem; }
+        @media (min-width: 768px) {
+            main { padding-top: 1.25rem; }
+        }
+
+
